@@ -3,15 +3,14 @@ package com.sdk.internalexternalstorage
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import com.sdk.internalexternalstorage.databinding.ActivityMainBinding
 import java.io.*
-import java.nio.charset.Charset
 
 class MainActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -73,17 +72,19 @@ class MainActivity : AppCompatActivity() {
             )
         }
         binding.btnSaveExt.setOnClickListener {
-            val directory = File(Environment.getExternalStorageDirectory().toString() + "/MyData")
-            directory.mkdir()
+            if(isExternalStorageWritable()) {
+                val directory = File(Environment.getExternalStorageDirectory().toString() + "/MyData")
+                directory.mkdir()
 
-            val file = File(Environment.getExternalStorageDirectory(), "myExtData.txt")
-            val fileOutputStream = FileOutputStream(file)
-            fileOutputStream.write(
-                binding.editExternal.text.toString().toByteArray()
-            )
-            fileOutputStream.close()
-            toast("Data saved")
-            binding.editExternal.text.clear()
+                val file = File(Environment.getExternalStorageDirectory(), "myExtData.txt")
+                val fileOutputStream = FileOutputStream(file)
+                fileOutputStream.write(
+                    binding.editExternal.text.toString().toByteArray()
+                )
+                fileOutputStream.close()
+                toast("Data saved")
+                binding.editExternal.text.clear()
+            }
         }
         binding.btnReadExt.setOnClickListener {
             try {
@@ -132,4 +133,7 @@ class MainActivity : AppCompatActivity() {
             binding.btnSaveExt.isVisible = true
         }
     }
+
+    private fun isExternalStorageWritable(): Boolean =
+        Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
 }
